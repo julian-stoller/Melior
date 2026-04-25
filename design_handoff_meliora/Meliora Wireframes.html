@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Meliora — Wireframes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Kalam:wght@400;700&family=Patrick+Hand&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    html, body, #root { height: 100%; }
+    body { background: #efece4; }
+  </style>
+</head>
+<body data-fidelity="rough" data-accent="on">
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="primitives.jsx"></script>
+  <script type="text/babel" src="landings.jsx"></script>
+  <script type="text/babel" src="intakes.jsx"></script>
+  <script type="text/babel" src="dashboards.jsx"></script>
+  <script type="text/babel" src="locations.jsx"></script>
+  <script type="text/babel" src="medications.jsx"></script>
+  <script type="text/babel" src="profile.jsx"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "fidelity": "tight",
+      "accent": "on",
+      "heroFocus": "body",
+      "intakeFocus": "sidebar",
+      "dashFocus": "convo"
+    }/*EDITMODE-END*/;
+
+    const HEROES = [
+      { id: "rings",    label: "01 · Rings & metrics",     Comp: window.LandingRings },
+      { id: "body",     label: "02 · Body silhouette",      Comp: window.LandingBody },
+      { id: "timeline", label: "03 · Year timeline",        Comp: window.LandingTimeline },
+      { id: "map",      label: "04 · Health on a map",      Comp: window.LandingMap },
+      { id: "calendar", label: "05 · Daily calendar",       Comp: window.LandingCalendar },
+      { id: "journal",  label: "06 · Journal & companion",  Comp: window.LandingJournal },
+    ];
+    const INTAKES = [
+      { id: "linear",  label: "01 · Linear progress bar",  Comp: window.IntakeLinear },
+      { id: "sidebar", label: "02 · Sidebar steps",        Comp: window.IntakeSidebar },
+      { id: "convo",   label: "03 · One-question-at-a-time", Comp: window.IntakeConversational },
+      { id: "stack",   label: "04 · Card stack",           Comp: window.IntakeCardStack },
+      { id: "preview", label: "05 · Live profile preview", Comp: window.IntakeLivePreview },
+    ];
+    const DASHBOARDS = [
+      { id: "standard", label: "01 · Standard grid",       Comp: window.DashboardStandard },
+      { id: "compact",  label: "02 · Dense overview",      Comp: window.DashboardCompact },
+      { id: "convo",    label: "03 · Conversation-led",    Comp: window.DashboardConversational },
+    ];
+
+    function App() {
+      const [tweaks, setTweak] = window.useTweaks(TWEAK_DEFAULTS);
+
+      // apply globals
+      useEffect(() => {
+        document.body.dataset.fidelity = tweaks.fidelity;
+        document.body.dataset.accent = tweaks.accent;
+      }, [tweaks.fidelity, tweaks.accent]);
+
+      const heroes  = tweaks.heroFocus === "all"  ? HEROES  : HEROES.filter(h => h.id === tweaks.heroFocus);
+      const intakes = tweaks.intakeFocus === "all" ? INTAKES : INTAKES.filter(i => i.id === tweaks.intakeFocus);
+      const dashes  = tweaks.dashFocus === "all"  ? DASHBOARDS : DASHBOARDS.filter(d => d.id === tweaks.dashFocus);
+
+      const { DesignCanvas, DCSection, DCArtboard } = window;
+      const { TweaksPanel, TweakSection, TweakRadio, TweakSelect } = window;
+
+      return (
+        <>
+          <DesignCanvas
+            title="Meliora · Landing → Intake wireframes"
+            subtitle="Warm, human voice. 6 landings × 5 intakes. Tweaks: fidelity / accent / cycle.">
+            <DCSection id="landings" title="Landing pages — 6 directions">
+              {heroes.map(({ id, label, Comp }) => (
+                <DCArtboard key={id} id={"hero-" + id} label={label} width={1280} height={840}>
+                  <Comp />
+                </DCArtboard>
+              ))}
+            </DCSection>
+            <DCSection id="intakes" title="Intake (post-CTA) — 5 directions">
+              {intakes.map(({ id, label, Comp }) => (
+                <DCArtboard key={id} id={"intake-" + id} label={label} width={1280} height={820}>
+                  <Comp />
+                </DCArtboard>
+              ))}
+            </DCSection>
+            <DCSection id="dashboards" title="Dashboard — chat history + Claude prompt + data + meds">
+              {dashes.map(({ id, label, Comp }) => (
+                <DCArtboard key={id} id={"dash-" + id} label={label} width={1440} height={1100}>
+                  <Comp />
+                </DCArtboard>
+              ))}
+            </DCSection>
+            <DCSection id="locations" title="Locations page">
+              <DCArtboard id="locations-page" label="01 · Locations + conclusions" width={1280} height={900}>
+                <window.LocationsPage />
+              </DCArtboard>
+            </DCSection>
+            <DCSection id="medications" title="Medications page">
+              <DCArtboard id="medications-page" label="01 · Adherence calendar" width={1280} height={900}>
+                <window.MedicationsPage />
+              </DCArtboard>
+            </DCSection>
+            <DCSection id="profile" title="Profile page">
+              <DCArtboard id="profile-page" label="01 · AI health summary for doctor" width={1280} height={1000}>
+                <window.ProfilePage />
+              </DCArtboard>
+            </DCSection>
+          </DesignCanvas>
+
+          <TweaksPanel title="Tweaks">
+            <TweakSection title="Fidelity">
+              <TweakRadio
+                label="Sketch level"
+                value={tweaks.fidelity}
+                onChange={v => setTweak("fidelity", v)}
+                options={[
+                  { value: "rough", label: "Rough (sketchy)" },
+                  { value: "tight", label: "Tighter (cleaner)" },
+                ]}
+              />
+            </TweakSection>
+            <TweakSection title="Color">
+              <TweakRadio
+                label="Accent"
+                value={tweaks.accent}
+                onChange={v => setTweak("accent", v)}
+                options={[
+                  { value: "on",  label: "Coral on" },
+                  { value: "off", label: "B&W only" },
+                ]}
+              />
+            </TweakSection>
+            <TweakSection title="Focus a hero">
+              <TweakSelect
+                label="Show only"
+                value={tweaks.heroFocus}
+                onChange={v => setTweak("heroFocus", v)}
+                options={[{ value: "all", label: "All 6" }, ...HEROES.map(h => ({ value: h.id, label: h.label }))]}
+              />
+            </TweakSection>
+            <TweakSection title="Focus an intake">
+              <TweakSelect
+                label="Show only"
+                value={tweaks.intakeFocus}
+                onChange={v => setTweak("intakeFocus", v)}
+                options={[{ value: "all", label: "All 5" }, ...INTAKES.map(i => ({ value: i.id, label: i.label }))]}
+              />
+            </TweakSection>
+            <TweakSection title="Focus a dashboard">
+              <TweakSelect
+                label="Show only"
+                value={tweaks.dashFocus}
+                onChange={v => setTweak("dashFocus", v)}
+                options={[{ value: "all", label: "All 3" }, ...DASHBOARDS.map(d => ({ value: d.id, label: d.label }))]}
+              />
+            </TweakSection>
+          </TweaksPanel>
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
